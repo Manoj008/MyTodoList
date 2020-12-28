@@ -1,25 +1,64 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./styles.css";
 
-function App() {
+import Form from "./componenets/Form";
+import TodoList from "./componenets/TodoList";
+
+export default function App() {
+  const [inputText, setInputText] = useState("");
+  const [todos, setTodos] = useState([]);
+  const [status, setStatus] = useState("all");
+  const [filteredTodos, setFilteredTodos] = useState([]);
+
+  useEffect(() => {
+    getFromLocal();
+  }, []);
+
+  useEffect(() => {
+    filterHandler();
+    saveToLocal();
+  }, [todos, status]);
+
+  const filterHandler = () => {
+    switch (status) {
+      case "completed":
+        setFilteredTodos(todos.filter((todo) => todo.completed === true));
+        break;
+      case "uncompleted":
+        setFilteredTodos(todos.filter((todo) => todo.completed !== true));
+        break;
+      default:
+        setFilteredTodos(todos);
+    }
+  };
+
+  const saveToLocal = () => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  };
+
+  const getFromLocal = () => {
+    if (localStorage.getItem("todos") === null) {
+      setTodos([]);
+    } else {
+      let localTodo = JSON.parse(localStorage.getItem("todos"));
+      setTodos(localTodo);
+    }
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>My ToDo List</h1>
+      <Form
+        inputText={inputText}
+        setInputText={setInputText}
+        todos={todos}
+        setTodos={setTodos}
+        setStatus={setStatus}
+      />
+      <TodoList
+        setTodos={setTodos}
+        todos={todos}
+        filteredTodos={filteredTodos}
+      />
     </div>
   );
 }
-
-export default App;
